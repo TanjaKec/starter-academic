@@ -1,0 +1,11 @@
+---
+title: "Covid SR: data visualisation"
+author: "Tanja"
+date: "2020-04-10"
+output: html_document
+---
+
+There is no a definitive way for carrying out data analysis. It rather depends on the study domain and the insights you wish to extract from the data that you can collect. 
+
+This post is an ongoing covid-19 data journey that illustrates the behaviour of Covid-19 pandemic within the Republic of Serbia and neighbouring ex-YU countries. All of the report is created with R and is presented on its’ designated website < https://covid19sr.rbind.io/> built with 💙 using the [`blogdown`]( https://bookdown.org)
+ and [Air]( https://themes.gohugo.io/air/) [HUGO]( https://gohugo.io/) theme.  

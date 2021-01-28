@@ -1,0 +1,21 @@
+---
+title: "Air pollution in Belgrade"
+author: "Tanja"
+date: "2020-03-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+Earlier in March we ran our first ever [Open Heroines]( https://openheroines.org) event here in Belgrade.
+
+We got things started by creating [a website](https://ohsa.netlify.app/) publicising our event and making it clear from the get go what the participants could expect from the event. The website was created in [RStudio]( https://rstudio.com) using [`blogdown`]( https://bookdown.org/yihui/blogdown/) and [HUGO]( https://themes.gohugo.io) and deployed using [GitHub](https://github.com) and [Netlify]( https://www.netlify.com). The responses to the site were very positive and we were particularly bowled over by the wide range of backgrounds of the people wishing to attend. From economists to journalists, students to CEOs, the desire to understand more about the power of data acted as the adhesive to the collective ensemble.
+
+We illustrated the process of the democratisation of open data. In the belief that we should use a topical subject for analysis, we looked at data related to air pollution in Belgrade sourced from [Vazduh Gradjanima]( https://klimerko.org) – a hot talking point within the city. We created R-Markdown reports where the participants created visual data reporting of the core issues related to air pollution. There was an amazing response to everyone being able to learn how to interact with data, as if a new world was now available to them. 
+
+In the spirit of transparency and reproducibility for those who were not fortunate to join us in learning how to use R and analyse this air pollution data, we uploaded our findings to the GitHub <https://tanjakec.github.io/OH_workshop/OHSA.html>.
+
+

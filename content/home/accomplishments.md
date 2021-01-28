@@ -3,34 +3,36 @@
 # Documentation: https://sourcethemes.com/academic/docs/page-builder/
 widget: accomplishments
 
+# Activate this widget? true/false
+active: false
+
 # This file represents a page section.
 headless: true
 
 # Order that this section appears on the page.
 weight: 50
 
-# Note: `&shy;` is used to add a 'soft' hyphen in a long heading.
-title: 'Accomplish&shy;ments'
+title: Featured Publications
 subtitle:
 
 # Date format
-#   Refer to https://wowchemy.com/docs/customization/#date-format
+#   Refer to https://sourcethemes.com/academic/docs/customization/#date-format
 date_format: Jan 2006
 
 # Accomplishments.
 #   Add/remove as many `item` blocks below as you like.
-#   `title`, `organization`, and `date_start` are the required parameters.
+#   `title`, `organization` and `date_start` are the required parameters.
 #   Leave other parameters empty if not required.
-#   Begin multi-line descriptions with YAML's `|2-` multi-line prefix.
+#   You can begin a multiline `description` using YAML's `|-`.
 item:
-- certificate_url: https://www.coursera.org
+- certificate_url: https://www.danas.rs/naslovna/naslovna-za-21-jul-2020/
   date_end: ""
-  date_start: "2018-10-01"
-  description: ""
-  organization: Coursera
-  organization_url: https://www.coursera.org
-  title: Neural Networks and Deep Learning
-  url: ""
+  date_start: "2020-07-21"
+  description: "Danas is an independent daily newspaper published in Belgrade, Serbia. It is a left-oriented media, promoting social-democracy and European integrations. It is a vocal media supporter of Serbian NGO activities towards human rights and minorities protection"
+  organization: Danas
+  organization_url: https://www.danas.rs/naslovna/
+  title: How did the spread of the corona virus in Serbia move from March until today
+  url: "https://www.danas.rs/drustvo/kako-se-kretalo-sirrenje-korona-virus-u-srbiji-od-marta-do-danas/"
 - certificate_url: https://www.edx.org
   date_end: ""
   date_start: "2018-03-01"

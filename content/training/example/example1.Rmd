@@ -1,0 +1,37 @@
+---
+date: "2020-02-15T00:00:00+01:00"
+draft: false
+linktitle: 
+menu:
+  example:
+    parent: 
+    weight: 3 
+title: Reproducible Research
+toc: 
+type: docs
+weight: 3
+---
+
+This course is designed to give you an appreciation of R programming as a tool for reproducible research. It focuses on packages that will help you access your data, do necessary visualisation and communication in a dynamic and reproducible manner.
+
+#### If you would like to learn to:
+
+- Store in one place your research methods, results and interpretation
+- Update your research methodology and automate the update of the results
+- Write your research text and code in R Markdown
+- Generate reproducible reports that display your code and results
+- Assemble your research reporting as either HTML, a PDF or a Word document using the package rmarkdown
+
+#### then this course is for you!
+
+{{% callout note %}}
+This course is available at 👉 <https://reproducibleresearchinr.rbind.io>
+{{% /callout %}}
+
+---
+
+
+The course has been delivered at [Belgrade Open School (BOS)](http://www.bos.rs/en/) and [the Institute of Philosophy and Social Theory (IFDT)](https://ifdt.bg.ac.rs) at [the University of Belograde](https://www.bg.ac.rs/en/).
+
+
+

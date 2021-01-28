@@ -1,0 +1,40 @@
+---
+abstract: Data for this study were collected over 2 years (2004 and 2005). A cross-sectional representative sample of the Saudi population of healthy children below 5 years of age was used to calculate the prevalence of malnutrition. The study was carried out in the College of Medicine, King Saud University, Riyadh, Kingdom of Saudi Arabia. Body measurements of the weight, length, and height were performed according to standard recommendations. Standard deviation scores were determined using the Lambda, Mu, and Sigma (LMS) statistical methodology. The 1978 NCHS/WHO growth reference was used for the calculation of prevalence of underweight, wasting, and stunting defined as the proportion of children whose weight for age, weight for height, and height for age was below minus standard deviation (-2 SD) for Northern, Southwestern, and Central regions of the Kingdom of Saudi Arabia. Chi-square test was used to assess the difference in prevalence between regions, and a p<0.05 was considered significant.
+author_notes:
+- Equal contribution
+- Equal contribution
+authors:
+- admin
+- Peter Foster
+date: "2010-05-01T00:00:00Z"
+doi: ""
+featured: false
+image:
+#  caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/jdD8gXaTZsc)'
+  focal_point: ""
+  preview_only: false
+projects: []
+publication: '*Saudi Medical Journal*'
+publication_short: ""
+publication_types:
+- "2"
+publishDate: "2010-05-01T00:00:00Z"
+slides: 
+summary: 
+tags:
+#- Source Themes
+title: Regional disparity in prevalence of malnutrition in Saudi children
+url_code: ""
+url_dataset: ""
+url_pdf: "https://pubmed.ncbi.nlm.nih.gov/20464046/"
+url_poster: ""
+url_project: ""
+url_slides: ""
+url_source: ""
+url_video: ""
+---
+
+{{% alert note %}}
+Click the *Cite* button above to enable to import publication metadata into your reference management software.
+{{% /alert %}}
+

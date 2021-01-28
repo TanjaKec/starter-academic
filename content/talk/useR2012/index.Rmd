@@ -1,0 +1,43 @@
+---
+abstract: Assessing the accuracy of the $\tau^{th}$ ($\tau\in [0,1]$) quantile parametric regression function estimate (see Koenker and Bassett 1978) requires valid and reliable procedures for estimating the asymptotic variance-covariance matrix of the estimated parameters. This covariance matrix depends on the reciprocal of the density function of the error (sparsity function) evaluated at the quantile of interest which, particularly for heteroscedastic non-iid cases, results in a complex and difficult estimation problem. It is well-known that the construction of confidence intervals based on the quantile regression estimator can be simplified by using a bootstrap. To construct confidence intervals in quantile regression we propose an effective and easy to apply bootstrap method based on the idea of Silverman's (1986) kernel smoothing approach. This proposed bootstrapping method requires the estimation of the conditional variance function of the fitted quantile. After fitting the $\tau^{th}$ quantile function, we obtain the residuals, which are squared and centered to zero. Estimating the conditional mean function of the centered squared residuals gives the conditional variance function of the errors about the estimated $\tau^{th}$ quantile. Using an estimate of the conditional variance function allows the standardisation of the residuals which are then used in Silverman's (1986) kernel smoothing bootstrapping procedure to make inferences about the parameters of the $\tau^{th}$ quantile function. In this talk we will discuss a variety of approaches to estimate the conditional variance function. These will include the adaptation of GLMs as well as non-parametric regression based estimation. These different approaches have been assessed under various data structures simulated in R and compared to several existing methods computable in the quantreg package contributed by Roger Koenker. The simulation studies show good results in terms of coverage probability and the spread of the constructed parameters confidence intervals when compared with existing methods. This methodology is also applicable to a wider class of regression models with heteroscedastic errors where the transformation to normality is difficult to achieve or maybe undesirable given a need to preserve the original data scale. 
+address:
+  city: Nashville
+  country: United States
+#  postcode: "94305"
+  region: Tennessee, US
+#  street: 450 Serra Mall
+all_day: false
+authors: 
+date: "2012-06-12"
+date_end: "2012-06-15"
+event: useR!2012, The 8th International R Users Meeting
+event_url: https://www.r-project.org/conferences/useR-2012/draft-abstract-booklet-06122012.pdf
+featured: false
+image:
+#  caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/bzdhc5b3Bxs)'
+  focal_point: Right
+links:
+- icon: twitter
+  icon_pack: fab
+  name: Follow
+  url: https://twitter.com/Tatjana_Keco
+location: Vanderbilt University
+math: true
+#projects:
+#- internal-project
+publishDate: "2012-06-15"
+slides: UseR_2012.pdf
+summary: An example talk using Academic's Markdown slides feature.
+tags: [quantile regression, bootstrapping, kernel smoothing, general linear model, rstats]
+title: Smooth Bootstrap Inference for Parametric Quantile Regression
+url_code: ""
+url_pdf: "useR_2012.pdf"
+#url_slides: "UseR_2012.pdf"
+url_video: ""
+---
+
+{{% alert note %}}
+Click on the **PDF** button above to view the slides.
+{{% /alert %}}
+
+

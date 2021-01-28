@@ -1,0 +1,43 @@
+---
+abstract: This study examines the often-tricky process of delivering data literacy programmes to professionals with most to gain from a deeper understanding of data analysis. As such, the author discusses the process of building and delivering training strategies to journalists in regions where press freedom is constrained by numerous factors, not least of all institutionalised corruption. Reporting stories that are supplemented with transparent procedural systems are less likely to be contradicted and challenged by vested interest actors. Journalists are able to present findings supported by charts and info graphics, but these are open to translation. Therefore, most importantly, the data and code of the applied analytical methodology should also be available for scrutiny and is less likely to be subverted or prohibited.As part of creating an accessible programme geared to acquiring skills necessary for data journalism, the author takes a step-by-step approach to discussing the actualities of building online platforms for training purposes. Through the use of grammar of graphics in R and Shiny, a web application framework for R, it is possible to develop interactive applications for graphical data visualisation. Presenting findings through interactive and accessible visualisation methods in a transparent and reproducible way is an effective form of reaching audiences that might not otherwise realise the value of the topic or data at hand. The resulting ‘data toolbox for journalists’ is an accessible open-source resource. It can also be adapted to accommodate the need to provide a deeper understanding of the potential for data proficiency to other professions. The accessibility of R allows for users to build support communities, which in the case of journalists is essential for information gathering. Establishing and implementing transparent channels of communication is the key to scrupulous journalism and is why R is so applicable to this objective.
+address:
+  city: Milano
+  country: Italy
+#  postcode: "94305"
+  region: Italy
+#  street: 450 Serra Mall
+all_day: false
+authors: 
+date: "2018-06-17"
+date_end: "2018-06-20"
+event: eRum!2020, European R Users Meeting
+event_url: https://2020.erum.io
+featured: false
+image:
+#  caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/bzdhc5b3Bxs)'
+  focal_point: Right
+links:
+- icon: twitter
+  icon_pack: fab
+  name: Follow
+  url: https://twitter.com/Tatjana_Keco
+location: Milano
+math: true
+#projects:
+#- internal-project
+publishDate: "2020-06-18"
+slides: https://rtoolboxerum.netlify.app/#1
+#summary: An example talk using Academic's Markdown slides feature.
+tags: [rstats, data journalism]
+title: Transparent Journalism Through the Power of R
+url_code: ""
+url_pdf: "https://rtoolboxerum.netlify.app/"
+url_slides: "https://rtoolboxerum.netlify.app"
+url_video: "https://www.youtube.com/watch?v=r70YV-4ktIY&feature=youtu.be"
+---
+
+{{% alert note %}}
+Click on the **PDF** button above to view the slides.
+{{% /alert %}}
+
+

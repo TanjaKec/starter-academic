@@ -1,0 +1,684 @@
+---
+title: "Covid UK: How to do it in R"
+author: "Tanja"
+date: "2020-11-30"
+output: html_document
+---
+
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="/rmarkdown-libs/leaflet/leaflet.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/leaflet/leaflet.js"></script>
+<link href="/rmarkdown-libs/leafletfix/leafletfix.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/Proj4Leaflet/proj4-compressed.js"></script>
+<script src="/rmarkdown-libs/Proj4Leaflet/proj4leaflet.js"></script>
+<link href="/rmarkdown-libs/rstudio_leaflet/rstudio_leaflet.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/leaflet-binding/leaflet.js"></script>
+<script src="/rmarkdown-libs/pymjs/pym.v1.js"></script>
+<script src="/rmarkdown-libs/widgetframe-binding/widgetframe.js"></script>
+
+
+<p>Open data belongs to everyone; it empowers people to make informed decisions that are not clouded by misinformation, rumour and gossip. To be able to identify the underlying facts within data sets, it is crucial that individuals and communities possess the necessary skills. Open data is often inconsistent and limited and requires a significant amount of time to organise and structure for presentation purposes.</p>
+<p>This is a data analysis report concerning the visualisation of the COVID-19 virus within the United Kingdom and Europe. All of the report is created with <a href="https://www.r-project.org">R</a>. It represents a case study as an illustration of the concepts presented at the workshop on basic R for data analysts. To learn how to use R and develop a report like this visit the <a href="https://introtor.netlify.app/">Introduction To R</a> website.</p>
+<div id="covid-19-open-data" class="section level1">
+<h1>Covid-19: Open Data</h1>
+<p>The novel coronavirus disease 2019 (COVID-19) was first reported in Wuhan, China, where the initial wave of intense community transmissions was cut short by interventions.</p>
+<pre class="r"><code>&gt; # If you don&#39;t have the &quot;leaflet&quot; package installed yet, uncomment and run the line below
+&gt; #install.packages(&quot;leaflet&quot;)
+&gt; library(leaflet)
+&gt; # Initialize and assign as the leaflet object
+&gt; leaflet() %&gt;%
++   # add tiles to the leaflet object
++   addTiles() %&gt;%  
++   # setting the centre of the map and the zoom level
++   setView(lng = 114.3055, lat = 30.5928 , zoom = 10) %&gt;%
++   # add a popup marker 
++   addMarkers(lng = 114.3055, lat = 30.5928, popup = &quot;&lt;b&gt;Wuhan, capital of Central China’s Hubei province&lt;/b&gt;&lt;br&gt;&lt;a href=&#39;https://www.ft.com/content/82574e3d-1633-48ad-8afb-71ebb3fe3dee&#39;&gt;China and Covid-19: what went wrong in Wuhan?&lt;/a&gt;&quot;)</code></pre>
+<p><div id="htmlwidget-1" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[30.5928,114.3055,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},"<b>Wuhan, capital of Central China’s Hubei province<\/b><br><a href='https://www.ft.com/content/82574e3d-1633-48ad-8afb-71ebb3fe3dee'>China and Covid-19: what went wrong in Wuhan?<\/a>",null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"setView":[[30.5928,114.3055],10,[]],"limits":{"lat":[30.5928,30.5928],"lng":[114.3055,114.3055]}},"evals":[],"jsHooks":[]}</script>
+Experience has shown that for public health intervention to be successful governmental authorities need to:</p>
+<ul>
+<li>identify the infected and provide treatment</li>
+<li>locate and quarantine all those who had contact with the infected</li>
+<li>sterilise environmental pathogens</li>
+<li>promote the use of masks and social distancing</li>
+<li>release to the public the number of new infections and deaths on a daily basis through open data</li>
+</ul>
+<p>The importance of hand washing, wearing a mask and social distancing as a tool to limit disease transmission is well recognised, but nonetheless ensuring social distancing especially in densely populated urban areas is still challenging. Well-educated communities are critical for an effective response and for the prevention of local outbreaks. The sharing of factual information that can be understood and trusted by the communities is vital. This will lead to a change in their behaviour to implement efficiently desired public health actions is a must. Trust and transparency are fundamental in obtaining absolute public engagement. The publishing of daily figures that can be freely analysed and scrutinised can help in engaging communities and obtaining its willing and continued support in controlling the spread of infection.</p>
+<div id="working-with-a-db-in-r" class="section level2">
+<h2>Working with a DB in R</h2>
+<p>In big organisations data is often kept in a database and data you wish to access from it might be too large to fit into the memory of your computer. Connecting from R to a database to access the necessary data for an analysis can be very useful, as it allows you to fetch only the chunks needed for the current study. R enables you to access and query a database without having to download the data contained in it. The two most common methods of connection are:</p>
+<ul>
+<li><strong>Option 1)</strong>
+<ul>
+<li>the <code>RODBC</code> package: uses slightly older code; it can be used to connect to anything that uses ODBC.</li>
+</ul></li>
+</ul>
+<pre class="r"><code>&gt; library(&quot;RODBC&quot;)
+&gt; # Connection with a server called &quot;Walmart&quot; and a database called &quot;Asda&quot;:
+&gt; RODBC_connection &lt;- odbcDriverConnect(&#39;driver = {SQL Server};
++                                       server = Walmart;
++                                       database = Asda;
++                                       trusted_connection = true&#39;) #passes your windows credentials to the server; can also specify a username `uid` and a password `pwd`
+&gt; dt1 &lt;- sqlFetch(channel = RODBC_connection, sqtable = &quot;MyTable&quot;)</code></pre>
+<p>Using <code>RODBC</code> you can write back to database tables, choosing to append or not:</p>
+<pre class="r"><code>&gt; sqlSave(channel = RODBC_connection,
++         dat = dt2, 
++         tablename = &quot;MyTable_R_version&quot;,
++         append = FALSE,
++         safer = FALSE)</code></pre>
+<p>When you finish working using the database you should disconnect from the server.</p>
+<pre class="r"><code>&gt; odbcClose(RODBC_connection)</code></pre>
+<p>One of the authors of this package is the famous statistician <a href="https://en.wikipedia.org/wiki/Brian_D._Ripley">Brian Ripley</a>, and you can find more about the possibilities it offers by playing around with it using the guidance from <a href="https://www.rdocumentation.org/packages/RODBC/versions/1.3-17">RDocumentation on RODBC v1.3-17</a>.</p>
+<ul>
+<li><strong>Option 2)</strong>
+<ul>
+<li>the <code>DBI</code> package: a common database interface in R; can be used with different ‘back-end’ drivers such as MySQL, SQL Server, SQLite, Oracle etc; to write SQL it can be used on its own:</li>
+</ul></li>
+</ul>
+<pre class="r"><code>&gt; # Can write an SQL query directly using the `dbSendQuery` function
+&gt; # Executes the query on the server-side only, but if you want the results back in R, you need to use `dbFetch`
+&gt; SomeRecords &lt;- dbFetch(dbSendQuery(DBI_Connection, 
++                                    &quot;SELECT CustomerName_column, City_column FROM Customers_Table&quot;)) </code></pre>
+<p>You can also write back to a database using the <code>dbWriteTable</code> function.</p>
+<pre class="r"><code>&gt; #Writing a new table called &#39;Table_created_in_R&#39; using the R data.frame called &quot;my_df&quot;, with `append` and `overwrite` options
+&gt; dbWriteTable(DBI_Connection,&quot;Table_created_in_R&quot;, my_df, overwrite = TRUE)</code></pre>
+<p>We use <code>tbl()</code> to define a table as if it were part of the R work-space, and to specify as the function’s arguments the connection object and the name of the table in the database.</p>
+<pre class="r"><code>&gt; MyTable_Rws &lt;- tbl(DBI_Connection, &quot;MyTable_DB&quot;)</code></pre>
+<p>If we need to pull the data from the server into R’s memory we can use the <code>collect()</code> function.</p>
+<p>The <code>DBI</code> package can be combined with:</p>
+<ul>
+<li>the <code>dplyr</code> package: to make the <code>tbl</code>s and to work on them using <code>dplyr</code> syntax</li>
+<li>the <code>dbplyr</code> package: allows translation of SQL to dplyr</li>
+<li>the <code>odbc</code>package: provides the odbc drivers, but you could use the functions below with other drivers instead</li>
+</ul>
+<pre class="r"><code>&gt;     DBI_Connection &lt;- dbConnect(odbc(), 
++                                 driver = &quot;SQL Server&quot;,
++                                 server = Sys.getenv(&quot;SERVER&quot;),
++                                 database = Sys.getenv(&quot;DATABASE&quot;)
++ )</code></pre>
+<p>With the wave of <code>tidy verse</code> evangelists the second option has become more popular as it allows us to convert SQL into R using the <code>dplyr</code> commands chained with the pipe (<code>%&gt;%</code>) operator. <code>dplyr</code> can translate many different query types into SQL. We can use it to do fairly complex queries without translation in just a few lines and obtain the results even though the data is still in the database.</p>
+<p>Useful DBI commands</p>
+<table>
+<thead>
+<tr class="header">
+<th><strong>Command</strong></th>
+<th><strong>Summary</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dbConnect()</code></td>
+<td>Create a DBI connection object</td>
+</tr>
+<tr class="even">
+<td><code>dbListTables()</code></td>
+<td>List the tables on the connection</td>
+</tr>
+<tr class="odd">
+<td><code>dbListFields()</code></td>
+<td>List the fields for a given table on a given connection</td>
+</tr>
+<tr class="even">
+<td><code>dbSendQuery()</code></td>
+<td>Send a query to execute on the server/connection</td>
+</tr>
+<tr class="odd">
+<td><code>dbFetch()</code></td>
+<td>Fetch the results from the server/connection</td>
+</tr>
+<tr class="even">
+<td><code>dbWriteTable()</code></td>
+<td>Write a table to the connection</td>
+</tr>
+<tr class="odd">
+<td><code>tbl()</code></td>
+<td>Set a table on the connection as a <code>tibble</code> for <code>dplyr</code></td>
+</tr>
+<tr class="even">
+<td><code>glimpse()</code></td>
+<td>See a summary of the rows, data types and top rows</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="reading-data" class="section level2">
+<h2>Reading Data</h2>
+<p><a href="https://www.ecdc.europa.eu/en/publications-data/download-todays-data-geographic-distribution-covid-19-cases-worldwide">European Centre for Disease Prevention and Control</a> provides daily updates of newly reported cases of COVID-19 by country worldwide. The downloadable data file is updated daily and contains the latest available public data on COVID-19. Each row/entry contains the number of new cases reported per country and per day (with a lag of a day).</p>
+<p><a href="https://www.ecdc.europa.eu/en/publications-data/download-data-response-measures-covid-19" class="uri">https://www.ecdc.europa.eu/en/publications-data/download-data-response-measures-covid-19</a></p>
+<p><a href="https://www.ecdc.europa.eu/en/cases-2019-ncov-eueea" class="uri">https://www.ecdc.europa.eu/en/cases-2019-ncov-eueea</a></p>
+<p>We will start the analysis by uploading the necessary packages and data into R. If you have not got the packages used in the following code, you will need to uncomment the first line (delete the <code>#</code> symbol) in the code below.</p>
+<pre class="r"><code>&gt; #install.packages(c(&quot;dplyr&quot;, &quot;stringr&quot;)) # install multiple packages by passing a vector of package names to the function; this function will install the requested packages, along with any of their non-optional dependencies
+&gt; suppressPackageStartupMessages(library(readxl)) 
+&gt; suppressPackageStartupMessages(library(tidyverse))
+&gt; suppressPackageStartupMessages(library(httr))
+&gt; suppressPackageStartupMessages(library(lubridate))
+&gt; suppressPackageStartupMessages(library(dplyr))
+&gt; suppressPackageStartupMessages(library(plotly))
+&gt; suppressPackageStartupMessages(library(ggplot2))
+&gt; suppressPackageStartupMessages(library(cowplot))
+&gt; suppressPackageStartupMessages(library(scales))
+&gt; suppressPackageStartupMessages(library(sf))
+&gt; suppressPackageStartupMessages(library(DBI))
+&gt; suppressPackageStartupMessages(library(dbplyr))
+&gt; suppressPackageStartupMessages(library(tmap))
+&gt; suppressPackageStartupMessages(library(tmaptools))
+&gt; 
+&gt; 
+&gt; url2ecdc &lt;- &quot;https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-2020-11-30.xlsx&quot;
+&gt; 
+&gt; suppressMessages(GET(url2ecdc, write_disk(tf &lt;- tempfile(fileext = &quot;.xlsx&quot;))))</code></pre>
+<pre><code>## Response [https://www.ecdc.europa.eu/sites/default/files/documents/COVID-19-geographic-disbtribution-worldwide-2020-11-30.xlsx]
+##   Date: 2021-01-12 17:22
+##   Status: 200
+##   Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+##   Size: 3.41 MB
+## &lt;ON DISK&gt;  /var/folders/71/96w85flx3yl928r2hzpfwvd00000gp/T//Rtmph2SAt7/filefb413e6bacdc.xlsx</code></pre>
+<pre class="r"><code>&gt; covid_world &lt;- read_excel(tf)</code></pre>
+<p>We will set up the database connection to work on <code>covid_world</code> data.</p>
+<pre class="r"><code>&gt; SQLcon &lt;- dbConnect(RSQLite::SQLite(), &quot;:memory:&quot;)
+&gt; dbWriteTable(SQLcon, &quot;covid&quot;, covid_world, overwrite=TRUE)</code></pre>
+<p>Let’s see what tables we have in our database.</p>
+<pre class="r"><code>&gt; dbListTables(SQLcon)</code></pre>
+<pre><code>## [1] &quot;covid&quot;</code></pre>
+<p>We can list the fields in a table:</p>
+<pre class="r"><code>&gt; dbListFields(SQLcon, name = &quot;covid&quot;)</code></pre>
+<pre><code>##  [1] &quot;dateRep&quot;                                                   
+##  [2] &quot;day&quot;                                                       
+##  [3] &quot;month&quot;                                                     
+##  [4] &quot;year&quot;                                                      
+##  [5] &quot;cases&quot;                                                     
+##  [6] &quot;deaths&quot;                                                    
+##  [7] &quot;countriesAndTerritories&quot;                                   
+##  [8] &quot;geoId&quot;                                                     
+##  [9] &quot;countryterritoryCode&quot;                                      
+## [10] &quot;popData2019&quot;                                               
+## [11] &quot;continentExp&quot;                                              
+## [12] &quot;Cumulative_number_for_14_days_of_COVID-19_cases_per_100000&quot;</code></pre>
+<p>We can run an SQL query directly from R. To illustrate it we will run a query to obtain distinct values for the field “continentExp”.</p>
+<pre class="r"><code>&gt; dbFetch(dbSendQuery(SQLcon, &quot;Select distinct continentExp from covid&quot;))</code></pre>
+<pre><code>##   continentExp
+## 1         Asia
+## 2       Europe
+## 3       Africa
+## 4      America
+## 5      Oceania
+## 6        Other</code></pre>
+<p>Next, we will run a query to count how many entries we have for each continent</p>
+<pre class="r"><code>&gt; dbFetch(
++   dbSendQuery(SQLcon,
++               &quot;Select continentExp, count(*) as Count  
++                  from covid
++                  group by continentExp&quot;))</code></pre>
+<pre><code>##   continentExp Count
+## 1       Africa 14196
+## 2      America 13056
+## 3         Asia 12653
+## 4       Europe 16601
+## 5      Oceania  2332
+## 6        Other    64</code></pre>
+<p>and see how many entries there are for the UK, using a <code>where</code> clause.</p>
+<pre class="r"><code>&gt; dbFetch(
++   dbSendQuery(SQLcon,
++                &quot;Select continentExp, count(*) as Count  
++                   from covid
++                   Where countriesAndTerritories = &#39;United_Kingdom&#39;
++                   group by continentExp&quot;))</code></pre>
+<pre><code>##   continentExp Count
+## 1       Europe   336</code></pre>
+<p>Fortunately, for people whose SQL is rusty, and who don’t feel like learning both SQL and R, we can do all of this using the <code>diplyr</code> package in R.</p>
+<p>First we need to declare covid as a <code>tbl</code> for use with <code>dplyr</code>. We’ll call it <code>covid_ecdc</code> to avoid any confusion.</p>
+<pre class="r"><code>&gt; covid_ecdc &lt;- tbl(SQLcon, &quot;covid&quot;)</code></pre>
+<p>This will now be treated as an R tibble, but it is still in the database!!!</p>
+<p>It is always useful to have a quick glance at the data set structure to find out how the information it contains is structured. Knowledge of the structure is important, because it allows us later to filter out the desired information very precisely, based on criteria to limit specific dimensions, i.e. variables.</p>
+<pre class="r"><code>&gt; covid_ecdc %&gt;%
++   glimpse()</code></pre>
+<pre><code>## Rows: ??
+## Columns: 12
+## Database: sqlite 3.33.0 [:memory:]
+## $ dateRep                                                      &lt;dbl&gt; 16066944…
+## $ day                                                          &lt;dbl&gt; 30, 29, …
+## $ month                                                        &lt;dbl&gt; 11, 11, …
+## $ year                                                         &lt;dbl&gt; 2020, 20…
+## $ cases                                                        &lt;dbl&gt; 0, 228, …
+## $ deaths                                                       &lt;dbl&gt; 0, 11, 1…
+## $ countriesAndTerritories                                      &lt;chr&gt; &quot;Afghani…
+## $ geoId                                                        &lt;chr&gt; &quot;AF&quot;, &quot;A…
+## $ countryterritoryCode                                         &lt;chr&gt; &quot;AFG&quot;, &quot;…
+## $ popData2019                                                  &lt;dbl&gt; 38041757…
+## $ continentExp                                                 &lt;chr&gt; &quot;Asia&quot;, …
+## $ `Cumulative_number_for_14_days_of_COVID-19_cases_per_100000` &lt;dbl&gt; 6.416633…</code></pre>
+<p>Before we go any further and start the analysis of covid data we will replicate the above queries using the <code>dplyr</code> functions. First, to illustrate how easy it is to do the column selection with <code>dplyr</code> we’ll select <code>countriesAndTerritories</code> and continentExp<code>from our</code>covid_ecdc` data.</p>
+<pre class="r"><code>&gt; head(covid_ecdc %&gt;% 
++        select(countriesAndTerritories, continentExp)) # returns first six rows of the vector, i.e. tibble</code></pre>
+<pre><code>## # Source:   lazy query [?? x 2]
+## # Database: sqlite 3.33.0 [:memory:]
+##   countriesAndTerritories continentExp
+##   &lt;chr&gt;                   &lt;chr&gt;       
+## 1 Afghanistan             Asia        
+## 2 Afghanistan             Asia        
+## 3 Afghanistan             Asia        
+## 4 Afghanistan             Asia        
+## 5 Afghanistan             Asia        
+## 6 Afghanistan             Asia</code></pre>
+<p>The First query was the count of entries for each continent.</p>
+<pre class="r"><code>&gt; covid_ecdc %&gt;% 
++   group_by(continentExp) %&gt;% 
++   tally()</code></pre>
+<pre><code>## # Source:   lazy query [?? x 2]
+## # Database: sqlite 3.33.0 [:memory:]
+##   continentExp     n
+##   &lt;chr&gt;        &lt;int&gt;
+## 1 Africa       14196
+## 2 America      13056
+## 3 Asia         12653
+## 4 Europe       16601
+## 5 Oceania       2332
+## 6 Other           64</code></pre>
+<p>The second was to look for the number of entries for the UK.</p>
+<pre class="r"><code>&gt; covid_ecdc %&gt;%
++   filter(countriesAndTerritories == &quot;United_Kingdom&quot;) %&gt;%
++   tally()</code></pre>
+<pre><code>## # Source:   lazy query [?? x 1]
+## # Database: sqlite 3.33.0 [:memory:]
+##       n
+##   &lt;int&gt;
+## 1   336</code></pre>
+<p>If you do not have to manipulate and do the engineering work with DBs, but you need to access it to obtain data for the analysis, you might find it easier to do it all using the <code>dplyr</code>. It is intuitive and therefore easier to write. You cannot deny that <code>dplyr</code>’s version also looks neater.</p>
+<p>Next, we’ll check the total number of readings for each country and present it in a table using the <code>DT</code> package. <code>DT</code> provides an R interface to the JavaScript library <a href="https://datatables.net"><code>DataTables</code></a>, which will enable us to filter through the displayed data.</p>
+<pre class="r"><code>&gt; if (!require(&quot;DT&quot;)) install.packages(&#39;DT&#39;) # returns a logical value say, FALSE if the requested package is not found and TRUE if the package is loaded
+&gt; tt &lt;- covid_ecdc %&gt;%
++   group_by(countriesAndTerritories) %&gt;%
++   summarise(no_readings = n()) %&gt;%
++   arrange(no_readings)
+&gt;   
+&gt; mdt &lt;- DT::datatable(data.frame(tt))
+&gt; widgetframe::frameWidget(mdt)</code></pre>
+<div id="htmlwidget-2" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2">{"x":{"url":"/post/Covid_UK/index_files/figure-html//widgets/widget_covid_ecdc.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="tidying-data" class="section level2">
+<h2>Tidying Data</h2>
+<p>We will focus our analysis on European countries and select them from our <code>covid_world</code> data, saving it all as <code>covid_eu</code> data frame object as this data needs tidying and wrangling and we do not want to limit ourselves by using only <code>dplyr</code> functions in R.</p>
+<pre class="r"><code>&gt; covid_eu &lt;- rbind(covid_world %&gt;% filter(continentExp == &quot;Europe&quot;), 
++                   covid_world %&gt;% filter(countriesAndTerritories == &quot;Turkey&quot;))  
+&gt; 
+&gt; mdt &lt;- DT::datatable(covid_eu)
+&gt; widgetframe::frameWidget(mdt)</code></pre>
+<p><div id="htmlwidget-3" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3">{"x":{"url":"/post/Covid_UK/index_files/figure-html//widgets/widget_ecdc_data.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+You can, however, try to pull the data from the server into R’s memory and by using <code>dplyr</code> functions do the required manipulations.</p>
+<pre class="r"><code>&gt; covid_eu &lt;- covid_ecdc %&gt;% 
++   filter(continentExp == &quot;Europe&quot;) %&gt;% 
++   collect()
+&gt;   
+&gt; mdt &lt;- DT::datatable(covid_eu)
+&gt; widgetframe::frameWidget(mdt)</code></pre>
+<p>The experience with COVID-19 shows that the spread of the disease can be controlled by implementing the measures of prevention as soon as an outbreak has been detected.</p>
+<blockquote>
+<p>To monitor the effectiveness of the measures introduced, we will focus on daily cumulative cases of COVID-19 infection that can be expressed as
+<span class="math display">\[F(x) = \sum_{i=1}^{n} x_i\]</span></p>
+</blockquote>
+<blockquote>
+<p>Although <span class="math inline">\(F(x)\)</span> can show the volume of the epidemic, it does not tell us directly about the changes in the acceleration of the spread of infection. This information can be provided by the derivatives of the <span class="math inline">\(F(x)\)</span>. The first derivative <span class="math inline">\(F^{’}(x)\)</span> corresponds to the information on the number of new cases detected every day. The second derivative <span class="math inline">\(F^{’’}(x)\)</span> provides the information about the acceleration of the epidemic. <span class="math inline">\(F^{’’}(x) \approx 0\)</span> indicates the state of stagnation, while <span class="math inline">\(F^{’’}(x) &lt; 0\)</span> indicates deceleration and of course any <span class="math inline">\(F^{’’}(x) &gt; 0\)</span> acceleration.</p>
+</blockquote>
+<p>We will carry on with the analysis by tidying <code>covid_eu</code> data and adding the information about those derivatives. First, we notice that there are 4 columns used to contain the date of reporting, which will allow us to remove columns 2-4 as redundant. We will only keep the <code>dateRep</code> column which requires some tidying up in respect of the format in which the dates are recorded. We will also carry out the necessary calculations for obtaining the second derivative <span class="math inline">\(F^{’’}(x)\)</span> and rename some of the variables to make them easier to display and type. 😁 All of this is very easy to carry out in R using the <code>tidy verse</code>, opinionated collection of R packages for data science.</p>
+<pre class="r"><code>&gt; # --- tidy data ---
+&gt; glimpse(covid_eu)</code></pre>
+<pre><code>## Rows: 16,863
+## Columns: 12
+## $ dateRep                                                      &lt;dttm&gt; 2020-11…
+## $ day                                                          &lt;dbl&gt; 30, 29, …
+## $ month                                                        &lt;dbl&gt; 11, 11, …
+## $ year                                                         &lt;dbl&gt; 2020, 20…
+## $ cases                                                        &lt;dbl&gt; 835, 545…
+## $ deaths                                                       &lt;dbl&gt; 11, 16, …
+## $ countriesAndTerritories                                      &lt;chr&gt; &quot;Albania…
+## $ geoId                                                        &lt;chr&gt; &quot;AL&quot;, &quot;A…
+## $ countryterritoryCode                                         &lt;chr&gt; &quot;ALB&quot;, &quot;…
+## $ popData2019                                                  &lt;dbl&gt; 2862427,…
+## $ continentExp                                                 &lt;chr&gt; &quot;Europe&quot;…
+## $ `Cumulative_number_for_14_days_of_COVID-19_cases_per_100000` &lt;dbl&gt; 342.1921…</code></pre>
+<pre class="r"><code>&gt; #covid_eu &lt;- covid_eu[, -c(2:4)] # remove redundant information
+&gt; covid_eu &lt;- covid_eu %&gt;% 
++   separate(dateRep, c(&quot;dateRep&quot;), sep = &quot;T&quot;) %&gt;%
++   group_by(countriesAndTerritories) %&gt;% 
++   arrange(dateRep) %&gt;% 
++   mutate(total_cases = cumsum(cases), 
++          total_deaths = cumsum(deaths)) %&gt;% 
++   mutate(Diff_cases = total_cases - lag(total_cases),  # 1st derivative (same as cases)
++          Rate_pc_cases = round(Diff_cases/lag(total_cases) * 100, 2)) %&gt;% # rate of change
++   mutate(second_der = Diff_cases - lag(Diff_cases)) %&gt;% # 2nd derivative
++   rename(country = countriesAndTerritories) %&gt;% 
++   rename(country_code = countryterritoryCode) %&gt;% 
++   rename(Fx14dper100K = &quot;Cumulative_number_for_14_days_of_COVID-19_cases_per_100000&quot;) %&gt;% 
++   mutate(Fx14dper100K = round(Fx14dper100K))
+&gt; 
+&gt; covid_eu$dateRep &lt;- as.Date(covid_eu$dateRep)
+&gt; head(covid_eu) # returns first six rows of the df</code></pre>
+<pre><code>## # A tibble: 6 x 17
+## # Groups:   country [6]
+##   dateRep      day month  year cases deaths country geoId country_code
+##   &lt;date&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;       
+## 1 2019-12-31    31    12  2019     0      0 Armenia AM    ARM         
+## 2 2019-12-31    31    12  2019     0      0 Austria AT    AUT         
+## 3 2019-12-31    31    12  2019     0      0 Azerba… AZ    AZE         
+## 4 2019-12-31    31    12  2019     0      0 Belarus BY    BLR         
+## 5 2019-12-31    31    12  2019     0      0 Belgium BE    BEL         
+## 6 2019-12-31    31    12  2019     0      0 Croatia HR    HRV         
+## # … with 8 more variables: popData2019 &lt;dbl&gt;, continentExp &lt;chr&gt;,
+## #   Fx14dper100K &lt;dbl&gt;, total_cases &lt;dbl&gt;, total_deaths &lt;dbl&gt;,
+## #   Diff_cases &lt;dbl&gt;, Rate_pc_cases &lt;dbl&gt;, second_der &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div id="writing-functions" class="section level1">
+<h1>Writing Functions</h1>
+<p>As we would like to be able to plot this time series of the second derivatives <span class="math inline">\(F^{’’}(x)\)</span> for any country, we will create functions that will allow us to extract a country from the <code>covid_eu</code> data and to plot it as a time series.</p>
+<pre class="r"><code>&gt; # function for filltering a country from the given df
+&gt; sep_country &lt;- function(df, ccode){ 
++   df_c &lt;- df %&gt;% 
++     filter(country_code == as.character(ccode))
++   return(df_c)
++ }
+&gt; 
+&gt; # plotting the 2nd derivative
+&gt; sec_der_plot &lt;- function(df){
++   df %&gt;% 
++   filter(!is.na(second_der)) %&gt;% 
++     ggplot(aes(x = dateRep, y = second_der)) +
++     geom_line() + geom_point(col = &quot;#00688B&quot;) +
++     xlab(&quot;&quot;) + ylab(&quot;&quot;) +
++     labs (title = &quot;2nd derivative of F(x)&quot;, 
++           caption = &quot;Data from: https://www.ecdc.europa.eu&quot;) +
++     theme_minimal() +
++     theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++           panel.grid.major.x = element_blank(),
++           panel.grid.minor.x = element_blank())
++ }</code></pre>
+</div>
+<div id="data-visualisation" class="section level1">
+<h1>Data Visualisation</h1>
+<p>Once we have accessed and tidied up our data in R we can carry out the exploitative analysis using visualisation as an effective tool.</p>
+<div id="plotly-and-ggplot" class="section level2">
+<h2>plotly and ggplot</h2>
+<p>We will start reporting by illustrating the time series of the daily number of new cases of infection and deaths. To make this plot more informative, we will create it as an interactive web graphic using the <code>plotly</code> library. You can explore different kinds of <code>plotly</code> graphs in R from <a href="https://plotly.com/r/basic-charts/" class="uri">https://plotly.com/r/basic-charts/</a> or by reading the <a href="https://medium.com/swlh/step-by-step-data-visualization-guideline-with-plotly-in-r-fbd212640de2">Step-by-Step Data Visualization Guideline with Plotly in R</a> blog post.</p>
+<p><strong><a href="https://www.ecdc.europa.eu/en">ecdc</a> data updated on <span style="color:dodgerblue3">2020-11-30</span></strong></p>
+<pre class="r"><code>&gt; # Plot cases and deaths day-by-day
+&gt; 
+&gt; covid_uk &lt;- sep_country(covid_eu, &quot;GBR&quot;)
+&gt; 
+&gt; x &lt;- list(title = &quot;date reported&quot;)
+&gt; 
+&gt; fig &lt;- plot_ly(covid_uk, x = ~  dateRep) 
+&gt; fig &lt;- fig %&gt;% add_trace(y = ~cases, name = &#39;cases&#39;, type = &#39;scatter&#39;, mode = &#39;lines&#39;)
+&gt; fig &lt;- fig %&gt;% add_trace(y = ~deaths, name = &#39;deaths&#39;, type = &#39;scatter&#39;, mode = &#39;lines&#39;)   
+&gt; fig &lt;- fig %&gt;% layout(xaxis = x)</code></pre>
+<pre class="r"><code>&gt; fig</code></pre>
+<iframe seamless src="fig1.html" width="100%" height="500">
+</iframe>
+<p>The plots below illustrate dynamic changes based on the <span class="math inline">\(F(x)\)</span> created using the <code>ggplot2</code> package. What we would like to see is the flattening of the bars indicating the slowdown in the number of new Covid-19 cases.</p>
+<pre class="r"><code>&gt; covid_uk %&gt;% 
++   ggplot(aes(x = dateRep, y = total_cases)) +
++   geom_bar(stat=&quot;identity&quot;, fill = &quot;#00688B&quot;) + 
++   labs (title = &quot;Cumulative number of cases F(x)&quot;, 
++         caption = &quot;Data from: https://www.ecdc.europa.eu&quot;, 
++         x = &quot;Date&quot;, y = &quot;number of cases&quot;) +
++   theme_minimal() +
++   theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++         panel.grid.major.x = element_blank(),
++         panel.grid.minor.x = element_blank()) +
++   theme(legend.position=&quot;none&quot;) </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-20-1.png" width="672" /></p>
+<p>We will present the same information this time using the line plot integrating interactivity, displaying the information by using the <code>ggplotly()</code> function.</p>
+<pre class="r"><code>&gt; pl1 &lt;- covid_uk %&gt;% 
++   ggplot(aes(x = dateRep, y = total_cases)) +
++   geom_line() + geom_point(col = &quot;#00688B&quot;) +
++   xlab(&quot;Date&quot;) + ylab(&quot;Number of Cases&quot;) +
++   labs (title = &quot;F(x)&quot;, 
++         caption = &quot;Data from: https://www.ecdc.europa.eu&quot;) +
++   theme_minimal() +
++   theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++         panel.grid.major.x = element_blank(),
++         panel.grid.minor.x = element_blank())
+&gt; pl1</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-21-1.png" width="672" /></p>
+<p>The following graph presents the cumulative number of covid-19 cases using a logarithmic scale to emphasise the rate of change in a way that a linear scale does not.</p>
+<pre class="r"><code>&gt; pl_log &lt;- covid_uk %&gt;% 
++   mutate(log_total_cases = log(total_cases)) %&gt;% 
++   ggplot(aes(x = dateRep, y = log_total_cases)) +
++   geom_line() + geom_point(col = &quot;#00688B&quot;) +
++   xlab(&quot;&quot;) + ylab(&quot;&quot;) +
++   labs (title = &quot;F(x) on log scale&quot;, 
++         caption = &quot;Data from: https://www.ecdc.europa.eu&quot;) +
++   theme_minimal() +
++   theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++         panel.grid.major.x = element_blank(),
++         panel.grid.minor.x = element_blank()) 
+&gt; pl_log</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-22-1.png" width="672" /></p>
+<p>Sometimes it might be useful to present several plots next to each other. To do this in R we apply the <code>plot_grid()</code> function from the <code>cowplot</code> package.</p>
+<pre class="r"><code>&gt; plot_grid(pl1, pl_log)</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-23-1.png" width="672" />
+Next we will illustrate the cumulative number of cases for all selected European countries</p>
+<pre class="r"><code>&gt; all_plot &lt;- covid_eu %&gt;% 
++   filter(country_code %in% c(&quot;GBR&quot;, &quot;FRA&quot;, &quot;DEU&quot;, &quot;ITA&quot;, &quot;ESP&quot;, &quot;SWE&quot;)) %&gt;% 
++   filter(dateRep &gt; (max(dateRep) - 21)) %&gt;% 
++   ggplot(aes(x = dateRep, y = total_cases, colour = country_code)) +
++   geom_line() + 
++   xlab(&quot;&quot;) + ylab(&quot;&quot;) +
++   labs (title = &quot;F(x) in the last three weeks&quot;, 
++         caption = &quot;Data from: https://www.ecdc.europa.eu&quot;) +
++   theme_minimal() +
++   theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++         panel.grid.major.x = element_blank(),
++         panel.grid.minor.x = element_blank()) +
++   scale_x_date(labels = date_format(&quot;%m-%d&quot;),
++                breaks = &#39;day&#39;) +
++   scale_colour_brewer(palette = &quot;Set1&quot;) +
++   theme_classic() +
++   theme(legend.position = &quot;bottom&quot;) +
++   theme(axis.text.x = element_text(angle = 90)) </code></pre>
+<pre class="r"><code>&gt; ggplotly(all_plot)</code></pre>
+<iframe seamless src="fig2.html" width="100%" height="500">
+</iframe>
+<p>Again, this would be easier to compare using the log scale</p>
+<pre class="r"><code>&gt; covid_eu %&gt;% 
++   filter(country_code %in% c(&quot;GBR&quot;, &quot;FRA&quot;, &quot;DEU&quot;, &quot;ITA&quot;, &quot;ESP&quot;, &quot;SWE&quot;)) %&gt;% 
++   filter(dateRep &gt; (max(dateRep) - 21)) %&gt;% 
++   mutate(log_total_cases = log(total_cases)) %&gt;% 
++   ggplot(aes(x = dateRep, y = log_total_cases, colour = country_code)) +
++   geom_line() + 
++   xlab(&quot;&quot;) + ylab(&quot;&quot;) +
++   labs (title = &quot;logF(x) in the last three weeks&quot;, 
++         caption = &quot;Data from: https://www.ecdc.europa.eu&quot;) +
++   theme_minimal() +
++   theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++         panel.grid.major.x = element_blank(),
++         panel.grid.minor.x = element_blank()) +
++   scale_x_date(labels = date_format(&quot;%m-%d&quot;),
++                breaks = &#39;day&#39;) +
++   scale_colour_brewer(palette = &quot;Set1&quot;) +
++   theme_classic() +
++   theme(legend.position = &quot;bottom&quot;) +
++   theme(axis.text.x = element_text(angle = 45)) </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-26-1.png" width="672" />
+The following plot enables us to observe the change in the acceleration in relation to the governmental measures.</p>
+<pre class="r"><code>&gt; covid_uk %&gt;% 
++   filter(!is.na(second_der)) %&gt;% 
++   ggplot(aes(x = dateRep, y = second_der)) +
++   geom_line() + geom_point(col = &quot;#00688B&quot;) +
++   xlab(&quot;&quot;) + ylab(&quot;&quot;) +
++   labs (title = &quot;2nd derivative of F(x) for the UK&quot;, 
++         caption = &quot;Data from: https://www.ecdc.europa.eu&quot;) +
++   theme_minimal() +
++   theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5),
++         panel.grid.major.x = element_blank(),
++         panel.grid.minor.x = element_blank()) +
++   geom_vline(xintercept = as.numeric(as.Date(&quot;2020-03-23&quot;)), linetype = 3, colour = &quot;red&quot;, alpha = 0.5) +
++   geom_vline(xintercept = as.numeric(as.Date(&quot;2020-05-10&quot;)), linetype = 3, colour = &quot;dodgerblue4&quot;, alpha = 0.5) +
++   geom_vline(xintercept = as.numeric(as.Date(&quot;2020-07-04&quot;)), linetype = 3, colour = &quot;chartreuse4&quot;, alpha = 0.5) +
++   geom_vline(xintercept = as.numeric(as.Date(&quot;2020-11-05&quot;)), linetype = 3, colour = &quot;red&quot;, alpha = 0.5) +
++   annotate(geom=&quot;text&quot;, x=as.Date(&quot;2020-03-23&quot;), y = 8000, 
++            label=&quot;UK wide lockdown&quot;, col = &quot;red&quot;) +
++   annotate(geom=&quot;text&quot;, x=as.Date(&quot;2020-05-21&quot;), y = 5000, 
++            label=&quot;lockdown lifting plan&quot;, col = &quot;dodgerblue4&quot;) +
++   annotate(geom=&quot;text&quot;, x=as.Date(&quot;2020-07-04&quot;), y = -5000, 
++            label=&quot;wide-ranging changes&quot; , col = &quot;chartreuse4&quot;) +
++   annotate(geom=&quot;text&quot;, x=as.Date(&quot;2020-11-05&quot;), y = 8000, 
++            label=&quot;UK wide lockdown&quot;, col = &quot;red&quot;)  </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-27-1.png" width="672" /></p>
+<p>Let us see how these figures compare with other countries in particular France and Germany.</p>
+<p><strong>France: <span class="math inline">\(F^{&#39;&#39;}(x)\)</span></strong></p>
+<pre class="r"><code>&gt; covid_fr &lt;- sep_country(covid_eu, &quot;FRA&quot;) 
+&gt; sec_der_plot(covid_fr)</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-28-1.png" width="672" /></p>
+<p><strong>Germany: <span class="math inline">\(F^{&#39;&#39;}(x)\)</span></strong></p>
+<pre class="r"><code>&gt; covid_de &lt;- sep_country(covid_eu, &quot;DEU&quot;) 
+&gt; sec_der_plot(covid_de)</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+<p>Next, we are going to visualise a comparison between these three countries of the total number of deaths month by month.</p>
+<pre class="r"><code>&gt; covid_eu %&gt;% 
++    filter(country %in% c(&quot;United_Kingdom&quot;, &quot;Germany&quot;, &quot;France&quot;)) %&gt;% 
++    mutate(mon = month(dateRep, label = TRUE, abbr = TRUE)) %&gt;% 
++    group_by(country, mon) %&gt;% 
++    summarise(no_readings = n(), tdeath = max(total_deaths)) %&gt;% 
++    ggplot(aes(x = mon, y = tdeath, fill = country)) +
++    geom_bar(stat=&quot;identity&quot;, position = &quot;dodge&quot;, color = &quot;black&quot;) +
++    theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5)) +
++    labs (title = &quot;total number of deaths by month&quot;, 
++          caption = &quot;Data from: https://www.ecdc.europa.eu/en&quot;, 
++          x = &quot;month&quot;, y = &quot;number of deaths&quot;) +
++    scale_fill_brewer(palette=&quot;Paired&quot;) + 
++    theme(legend.position=&quot;bottom&quot;) </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-30-1.png" width="672" /></p>
+<p>We can make the same kind of comparisons for the total number of infections. But, before we just copy/paste and make an adjustment for <code>y</code> access, note that the order of the months does not show in the timeline of covid events. The recording of information about the spread of the pandemic started last December, which means that the bars should be in order from December to November. We are also going to flip the bars to see if it will add to its readability.</p>
+<pre class="r"><code>&gt; covid_eu %&gt;% 
++    filter(country %in% c(&quot;United_Kingdom&quot;, &quot;Germany&quot;, &quot;France&quot;)) %&gt;% 
++    mutate(mon = month(dateRep, label = TRUE, abbr = TRUE)) %&gt;% 
++    mutate(mon = factor(mon, levels=c(&quot;Dec&quot;, &quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;))) %&gt;% 
++    group_by(country, mon) %&gt;% 
++    summarise(no_readings = n(), tcases = max(total_cases)) %&gt;% 
++    ggplot(aes(x = mon, y = tcases, fill = country)) +
++    geom_bar(stat=&quot;identity&quot;, position = &quot;dodge&quot;, color = &quot;black&quot;) +
++    coord_flip() +
++    theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5)) +
++    labs (title = &quot;total number of infections by month&quot;, 
++          caption = &quot;Data from: https://www.ecdc.europa.eu/en&quot;, 
++          x = &quot;month&quot;, y = &quot;number of infections&quot;) +
++    scale_fill_brewer(palette=&quot;Set1&quot;) + 
++    theme(legend.position=&quot;bottom&quot;) </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-31-1.png" width="672" /></p>
+<p>We can present the total number of infections for each month. As the numbers are high we are going to “control” the way the values on the <code>y</code> access are going to appear.</p>
+<pre class="r"><code>&gt; covid_eu %&gt;% 
++    filter(country %in% c(&quot;United_Kingdom&quot;, &quot;Germany&quot;, &quot;France&quot;)) %&gt;% 
++    mutate(mon = month(dateRep, label = TRUE, abbr = TRUE)) %&gt;% 
++    mutate(mon = factor(mon, levels=c(&quot;Dec&quot;, &quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;))) %&gt;% 
++    group_by(country, mon) %&gt;% 
++    summarise(month_cases = sum(cases)) %&gt;% 
++    ggplot(aes(x = mon, y = month_cases, fill = country)) +
++    geom_bar(stat=&quot;identity&quot;, position = &quot;dodge&quot;, color = &quot;black&quot;) +
++    theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5)) +
++    scale_y_continuous(breaks = seq(0, 800000, 200000), labels = c(&quot;0&quot;, &quot;200K&quot;, &quot;400K&quot;, &quot;600K&quot;, &quot;800K&quot;)) +
++    labs (title = &quot;total number of infections each month&quot;, 
++          caption = &quot;Data from: https://www.ecdc.europa.eu/en&quot;, 
++          x = &quot;month&quot;, y = &quot;number of deaths&quot;) +
++    scale_fill_brewer(palette=&quot;Dark2&quot;) + 
++    theme(legend.position=&quot;bottom&quot;) </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-32-1.png" width="672" /></p>
+<p>Next, we are going to present the total number of deaths for each of the months since the recording began. Note, that in the code there is a line that is currently set as a comment that allows for the values to appear as texts on the top of the bars. You can go ahead and uncomment this line by removing the hashtag symbol in front of it.</p>
+<pre class="r"><code>&gt; covid_eu %&gt;% 
++    filter(country %in% c(&quot;United_Kingdom&quot;, &quot;Germany&quot;, &quot;France&quot;)) %&gt;% 
++    mutate(mon = month(dateRep, label = TRUE, abbr = TRUE)) %&gt;% 
++    mutate(mon = factor(mon, levels=c(&quot;Dec&quot;, &quot;Jan&quot;, &quot;Feb&quot;, &quot;Mar&quot;, &quot;Apr&quot;, &quot;May&quot;, &quot;Jun&quot;, &quot;Jul&quot;, &quot;Aug&quot;, &quot;Sep&quot;, &quot;Oct&quot;, &quot;Nov&quot;))) %&gt;% 
++    group_by(country, mon) %&gt;% 
++    summarise(month_deaths = sum(deaths)) %&gt;% 
++    ggplot(aes(x = mon, y = month_deaths, fill = country)) +
++    geom_bar(stat=&quot;identity&quot;, position = &quot;dodge&quot;, color = &quot;black&quot;) +
++    theme(plot.title = element_text(size = 14, vjust = 2, hjust=0.5)) +
++ #   geom_text(aes(label = month_cases), size = 3, hjust = 0.5) +  
++    labs (title = &quot;total number of deaths each month&quot;, 
++          caption = &quot;Data from: https://www.ecdc.europa.eu/en&quot;, 
++          x = &quot;month&quot;, y = &quot;number of cases&quot;) +
++    scale_fill_brewer(palette=&quot;Accent&quot;) + 
++    theme(legend.position=&quot;bottom&quot;) </code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-33-1.png" width="672" /></p>
+</div>
+<div id="spatial-visualisation" class="section level2">
+<h2>Spatial Visualisation</h2>
+<p>We will create a choropleth in which we will colour the EU countries according to the most current value of cumulative numbers for 14 days of COVID-19 cases per 100000. To do this we will use the shape file onto which we will superimpose this value as a colour of the polygon, i.e. country.</p>
+<pre class="r"><code>&gt; #points to the shape file
+&gt; bound &lt;- &quot;shapes/eu_countries_simplified.shp&quot;
+&gt; 
+&gt; #used the st_read() function to import it
+&gt; bound &lt;- st_read(bound)</code></pre>
+<pre><code>## Reading layer `eu_countries_simplified&#39; from data source `/Users/Tanja1/Documents/My_R/mws/content/post/Covid_UK/shapes/eu_countries_simplified.shp&#39; using driver `ESRI Shapefile&#39;
+## replacing null geometries with empty geometries
+## Simple feature collection with 54 features and 4 fields (with 4 geometries empty)
+## geometry type:  GEOMETRY
+## dimension:      XY
+## bbox:           xmin: -10.48 ymin: 34.5675 xmax: 44.81861 ymax: 71.13312
+## CRS:            4326</code></pre>
+<pre class="r"><code>&gt; # plot the shape file
+&gt; ggplot(bound) + 
++   geom_sf()</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-34-1.png" width="672" /></p>
+<pre class="r"><code>&gt; covid_EU &lt;- covid_eu %&gt;% 
++   filter(dateRep == max(dateRep))
+&gt; 
+&gt; 
+&gt; # tidy up
+&gt; # make the country names correspond to ecdc data 
+&gt; bound$country &lt;- gsub(&quot; &quot;, &quot;_&quot;, bound$country)
+&gt; bound &lt;- bound %&gt;% 
++   mutate(country = fct_recode(country,
++                               &quot;Czechia&quot; = &quot;Czech_Republic&quot;,
++                               &quot;North_Macedonia&quot; = &quot;Macedonia&quot;))
+&gt; 
+&gt; # join data from the two data frames  
+&gt; my_map &lt;- left_join(bound, covid_EU,
++                     by = c(&quot;country&quot; = &quot;country&quot;))
+&gt; 
+&gt; ggplot(my_map) +
++   geom_sf(aes(fill = Fx14dper100K)) +
++   scale_fill_distiller(direction = 1, name = &quot;Fx14per100K&quot;) +
++   labs(title=&quot;Cumulative number for 14 days of COVID-19 cases per 100000&quot;, caption=&quot;Source: ecdc&quot;)</code></pre>
+<p><img src="/post/Covid_UK/index_files/figure-html/unnamed-chunk-34-2.png" width="672" /></p>
+<pre class="r"><code>&gt; mdt &lt;- DT::datatable(my_map)
+&gt; widgetframe::frameWidget(mdt)</code></pre>
+<div id="htmlwidget-4" style="width:100%;height:480px;" class="widgetframe html-widget"></div>
+<script type="application/json" data-for="htmlwidget-4">{"x":{"url":"/post/Covid_UK/index_files/figure-html//widgets/widget_unnamed-chunk-35.html","options":{"xdomain":"*","allowfullscreen":false,"lazyload":false}},"evals":[],"jsHooks":[]}</script>
+<hr />
+<p>With the <code>tmap</code> package, thematic maps can be generated with great effectiveness presenting several layers of information. The syntax is similar to the one adopted in <code>ggplot</code>. Motivation and the explanation of this package has been proposed and published in the article <a href="https://www.jstatsoft.org/article/view/v084i06">tmap: Thematic Maps in R</a>.</p>
+<p>If you are interested in learning more about creating maps in R check the online version of the book <a href="https://geocompr.robinlovelace.net">Geocomputation with R</a>. <a href="https://geocompr.robinlovelace.net/adv-map.html">Chapter 8: The Making maps with R</a> provides an easy to follow overview on using the <code>tmap</code> and other packages for creating beautiful maps in R.</p>
+<pre class="r"><code>&gt; my_map &lt;- my_map %&gt;% 
++   mutate(ln_deaths = log(deaths)^10)
+&gt; 
+&gt; #tmap_mode(mode =  &quot;view&quot;)
+&gt; 
+&gt; tm_shape(my_map) +
++   tm_polygons(&quot;Fx14dper100K&quot;, 
++               id = &quot;country&quot;, 
++               palette = &quot;YlGn&quot;, 
++               popup.vars=c(&quot;cases&quot;, 
++                            &quot;deaths&quot;)) +
++   tm_layout(title = &quot;Covid-19 EU&lt;/b&gt;&lt;br&gt;data source: &lt;a href=&#39;https://www.ecdc.europa.eu/en/covid-19-pandemic&#39;&gt;ECDC&lt;/a&gt;&quot;,
++             frame = FALSE,
++             inner.margins = c(0.1, 0.1, 0.05, 0.05)) </code></pre>
+<iframe seamless src="europe.html" width="100%" height="500">
+</iframe>
+<p>Lastly, we should not forget to disconnect from the database.</p>
+<pre><code>dbDisconnect(SQLcon)</code></pre>
+</div>
+</div>
+<div id="useful-links" class="section level1">
+<h1>Useful Links</h1>
+<ul>
+<li><p><a href="https://db.rstudio.com">Databases using R</a></p></li>
+<li><p><a href="https://datacarpentry.org/R-ecology-lesson/05-r-and-databases.html">SQL databases and R</a></p></li>
+<li><p><a href="https://plotly-r.com">Book: Interactive web-based data visualization with R, plotly, and shiny</a></p></li>
+</ul>
+<hr />
+<p>
+<font color="gray"><strong>Working with a DB in R</strong> section is an adaptation of <a href="https://nhsrcommunity.com/">the NHS-R Community</a> <a href="https://nhsrcommunity.com/learn-r/workshops/database-connections-in-r-webinar/"><strong>Database Connections in R</strong></a> webinar created and run by <a href="https://www.mainard.co.uk/">Chris Mainey</a>.</font>
+</p>
+</div>

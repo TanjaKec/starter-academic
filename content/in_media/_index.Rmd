@@ -1,0 +1,56 @@
+---
+header:
+  caption: ""
+  image: ""
+layout: docs
+title: Media
+---
+```{r, echo=FALSE}
+library(htmlwidgets)
+library(knitr)
+```
+
+
+- [Danas: ](https://www.danas.rs/) [ Kako se kretalo širenje korona virusa u Srbiji od marta do danas?](https://www.danas.rs/naslovna/naslovna-za-21-jul-2020/)
+
+```{r danas, out.extra='style="border: none;"', fig.cap="Featered article", echo = FALSE}
+knitr::include_url('https://www.danas.rs/drustvo/kako-se-kretalo-sirrenje-korona-virus-u-srbiji-od-marta-do-danas/')
+```
+
+---
+
+ - [Open Heroines:](https://openheroines.org) [Sister Analyst Works to Tackle Air Pollution with Open Data in Belgrade](https://openheroines.org/sister-analyst-works-to-tackle-air-pollution-with-open-data-in-belgrade-b87a7a302e2a)
+ 
+[![](/in_media/_index_files/OHSA.jpg){#id .class width=50% height=50%px}](https://ohsa.netlify.app)
+
+---
+
+- [ZAVOD YPSILON:](https://ypsilon.si) [Introducing Tatjana Kecojevic, PhD., I'mpowered for the future ...](https://www.youtube.com/watch?v=5PXt5I9E-sE&t=3s)
+
+[![](/in_media/_index_files/YPSILON.jpg){width=50% height=50%}](https://www.facebook.com/zavod.ypsilon/videos/523581228434425)
+
+---
+
+ - [Kreatori i alati: Tatjana Kecojević, Data Scientist](https://startit.rs/kreatori-i-alati-tatjana-kecojevic-data-scientist/)
+
+```{r startit, out.extra='style="border: none;"', fig.cap="Featered article", echo = FALSE}
+knitr::include_url('https://startit.rs/kreatori-i-alati-tatjana-kecojevic-data-scientist/')
+```
+
+---
+
+[Northwest Universities R Day: ](https://www.software.ac.uk/blog/2019-01-23-northwest-universities-r-day-event) [panel discussion around future directions of R]()
+
+[![](/in_media/_index_files/nwuRday.jpg){width=50% height=50%}](https://www.software.ac.uk/blog/2019-01-23-northwest-universities-r-day-event)
+
+---
+
+ - [Enter Conference:](http://www.enterconference.net) [Data Science and R from Tatjana Kecojevic’s perspective](http://www.enterconference.net/data-science-and-r-from-tatjane-kecojevic-s-perspective/)
+ 
+![](/in_media/_index_files/ENTER_ME.jpg){width=50% height=50%} 
+
+---
+
+ - [N1 TV: ](http://rs.n1info.com)[Net Context: Data Science, 10 April 2018]()
+ 
+ ![](/in_media/_index_files/N1.jpg){width=50% height=50%}
